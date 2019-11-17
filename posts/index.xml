@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Perry Dunn</title>
-    <link>https://www.peregrinedunn.com/</link>
-    <description>Recent content on Perry Dunn</description>
+    <title>Posts on Perry Dunn</title>
+    <link>https://www.peregrinedunn.com/posts/</link>
+    <description>Recent content in Posts on Perry Dunn</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <lastBuildDate>Sun, 17 Nov 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://www.peregrinedunn.com/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://www.peregrinedunn.com/posts/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,15 +18,6 @@
       
       <guid>https://www.peregrinedunn.com/posts/20191101/</guid>
       <description>Functions in CPython</description>
-    </item>
-    
-    <item>
-      <title>About</title>
-      <link>https://www.peregrinedunn.com/about/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://www.peregrinedunn.com/about/</guid>
-      <description></description>
     </item>
     
   </channel>

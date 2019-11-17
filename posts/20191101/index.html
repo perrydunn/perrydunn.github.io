@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Perry Dunn">
+    <meta name="description" content="https://www.peregrinedunn.com">
+    <meta name="keywords" content="blog,developer,personal">
+    
+    <meta property="og:site_name" content="Perry Dunn">
+    <meta property="og:title" content="
+  Recursive, Iterative, Dynamic - Perry Dunn
+">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.peregrinedunn.com/posts/20191101/">
+    <meta property="og:image" content="https://www.peregrinedunn.com">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="https://www.peregrinedunn.com/posts/20191101/">
+    <meta name="twitter:image" content="https://www.peregrinedunn.com">
+
+    <base href="https://www.peregrinedunn.com/posts/20191101/">
+    <title>
+  Recursive, Iterative, Dynamic - Perry Dunn
+</title>
+
+    <link rel="canonical" href="https://www.peregrinedunn.com/posts/20191101/">
+    
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    
+    <link  rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700">
+    <link rel="stylesheet" href="https://www.peregrinedunn.com/css/normalize.min.css">
+    <link rel="stylesheet" href="https://www.peregrinedunn.com/css/style.min.css">
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.peregrinedunn.com/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.peregrinedunn.com/images/favicon-16x16.png" sizes="16x16">
+
+    
+      <link rel="alternate" href="https://www.peregrinedunn.com/index.xml" type="application/rss+xml" title="Perry Dunn">
+      <link href="https://www.peregrinedunn.com/index.xml" rel="feed" type="application/rss+xml" title="Perry Dunn" />
+    
+
+    <meta name="generator" content="Hugo 0.56.3" />
+  </head>
+
+  <body class="">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">Perry Dunn</a>
+    <input type="checkbox" id="menu-control"/>
+    <label class="menu-mobile  float-right " for="menu-control">
+      <span class="btn-mobile  float-right ">&#9776;</span>
+      <ul class="navigation-list">
+        
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="https://www.peregrinedunn.com/posts">Blog</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="https://www.peregrinedunn.com/about">About</a>
+            </li>
+          
+        
+        
+      </ul>
+    </label>
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+  <article>
+    <header>
+      <h1 class="title">Recursive, Iterative, Dynamic</h1>
+      <p class="summary">Functions in CPython</p>
+      <h2 class="date">November 17, 2019</h2>
+
+      
+    </header>
+
+    
+
+<p>To motivate the discussion let&rsquo;s introduce a problem.</p>
+
+<blockquote>
+<p>There is a staircase with an integer, n, number of steps. You can climb the stairs either one at a time, two at a time or three at a time (woah - long legs, yeah yeah, but maybe you&rsquo;re actually descending and gravity is helping you out). In how many distinct ways can you ascend the staircase?</p>
+</blockquote>
+
+<p>Example: n = 4</p>
+
+<ul>
+    <li>1, 1, 1, 1 :  +1</li>
+    <li>2, 1, 1 :  +3</li>
+    <li>2, 2:  +1</li>
+    <li>3, 1 :  +2</li>
+    <li>1 + 3 + 1 + 2 = 7</li>
+</ul>
+
+<p>Above we see that with n = 4 you can either take the steps one by one the whole way up (1, 1, 1, 1), and there is just one way (+1) of achieving this. There are three distinct ways of combining a 2-step &ldquo;jump&rdquo; with two 1-step everyday Joes. There is one distinct jump-jump. And there are two distinct ways to introduce a 3-step &ldquo;giant leap&rdquo; (3, 1 and 1, 3 for +2). In total we have 7 distinct ways of ascending the staircase.</p>
+
+<p>Let&rsquo;s now write an algorithm to solve this. We&rsquo;ll be writing the algorithm in concrete code and here I&rsquo;ve selected Python. In the back of my mind I&rsquo;m going to bear in mind that I&rsquo;m using CPython, because implementation may matter in due course&hellip;</p>
+
+<h5 id="recursive">Recursive</h5>
+
+<p>A natural solution is a &ldquo;recursive&rdquo; function. We have some base cases and we just need to reach these base cases by stepping towards them.</p>
+
+<p>The base cases can be expressed, quite naturally, as:
+<ol>
+    <li>You overstepped the top step! This is an invalid solution. Count +0 to the total.</li>
+    <li>You reached the top step, well done! Count +1 to the total.</li>
+</ol>
+If you haven&rsquo;t reached the base case then you just recurse on the three possibilities: take a Joe step, a &ldquo;jump&rdquo;, and a &ldquo;giant leap&rdquo; (ooo, Oxford comma, no apology).</p>
+
+<p>So one valid way to express the solution is:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">steps</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>  <span class="c1"># Base Case 1.</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># Base Case 2.</span>
+    <span class="k">return</span> <span class="n">steps</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">steps</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">steps</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span></code></pre></div>
+<p>Okay, so yeah, it&rsquo;s a easy to understand solution. So why might we not, in general, like recursive solutions? Some languages (their implementations) are well optimised for recursion and some are not. With Python, iteration is preferred &ndash; you may even have experience yourself of running into stack overflow issues with recursive python. Okay, I&rsquo;m being a bit cheeky here: above we have a recursive function but it&rsquo;s not tail recursive, and really I&rsquo;m referring to tail call optimisation, so my point is slightly contrived in this example. But still, Python prefers iterative solutions&hellip;</p>
+
+<h5 id="iterative">Iterative</h5>
+
+<p>Let&rsquo;s have a go at writing an iterative solution, which is ordinarily the kind of solution you&rsquo;d see before recursive solutions if you&rsquo;re getting started with programming: you&rsquo;ve learnt about control structures but you haven&rsquo;t yet explored algorithm design, so you hack a solution using a <code>for-loop</code> or a <code>while-loop</code>, with some <code>if-statement</code> or whatever.</p>
+
+<p>If you did start with a recursive solution then the idea here is to prevent stack overflow by moving your problem from the stack memory to your own stack data structure: you control this directly from your code rather than relying on the implementation of the language. In Python we can use Python&rsquo;s <code>list</code> as a stack, a last-in first-out (LIFO) data structure.</p>
+
+<p>The elements in our stack will be the number of the step that you&rsquo;ve reached. We can simply initialise the stack to <code>[0]</code> to represent starting at the bottom of the staircase: this represents 1 ongoing solution. While there are ongoing solutions in the stack, we cycle through the following process:</p>
+
+<ol>
+    <li>Remove the latest ongoing solution from the stack, call this <code>step</code>.</li>
+    <li>If <code>step</code> is an invalid solution - you've overstepped the top of the staircase - then you ignore this solution and skip the remaining steps, looping around to pop off the next ongoing solution.</li>
+    <li>Else if <code>step</code> is the top step then you have a valid solution and you add +1 to the count.</li>
+    <li>Else you're not yet at the top, so append three ongoing solutions, one for each of the Joe, "jump" and "giant leap" steps.</li>
+</ol>
+
+<p>The above gives us the following solution in Python:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">steps</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">stack</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">stack</span><span class="p">:</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="n">n</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># Base Case 1. from earlier</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Base Case 2. from earlier</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">count</span></code></pre></div>
+<p>And so we have just one function kept on the stack (memory), rather than all the recursive calls to the function and their associated data. We have lightened the load on the stack, and de-risked stack overflow potential.</p>
+
+<p>But can we do even better? Both the recursive and iterative solutions are essentially doing the same thing, and the reason we wrote them both down is that the in general the implementation of a language will prefer one over the other. It could be that the algorithm itself is not so clever&hellip;</p>
+
+<h5 id="dynamic">Dynamic</h5>
+
+<p>What is this?</p>
+
+<p>Okay, let&rsquo;s just notice a failing in our previous solutions. They solve the same problem over and over. Really? Yes, really, look:</p>
+
+<p>Example: n = 4</p>
+
+<ul>
+    <li>steps(4) returns steps(3) + steps(2) + steps(1)</li>
+    <li>steps(3) returns steps(2) + steps(1) + steps(0)</li>
+    <li>... you see what I mean?</li>
+</ul>
+
+<p>There is repetition: both <code>steps(4)</code> and <code>steps(3)</code> call <code>steps(2)</code> and <code>steps(1)</code>, so we solve the same problem more than once. The aim of &ldquo;Dynamic Programming&rdquo; is to &ldquo;[solve] each sub-problem only once&rdquo; (type that quote into your favourite search engine to find the most informative paragraph in the Wikipedia page on Dynamic Programming). We&rsquo;re going to achieve this, ummm, somehow.</p>
+
+<p>So far we&rsquo;ve been looking at ascending the stairs. We expressed our base cases at the summit but then retreated to the bottom of the stairs and made our way towards them. This time we&rsquo;ll start at the top and descend. Hell yeah. Hot damn.</p>
+
+<p>Without further ado&hellip;</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">steps</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))]</span>
+    <span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">arr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">arr</span><span class="p">[</span><span class="n">n</span><span class="p">]</span></code></pre></div>
+<p>Seriously? Well, yeah, let&rsquo;s reason:</p>
+
+<ul>
+    <li><code>arr</code> is going to be populated as follows: an value v at index i will correspond to the number, v, of distinct ways to reach the top of a staircase of height i. So we know its length, so we can initialise it if we wanted (here I do).</li>
+    <li>A staircase of height 0 is kinda silly sounding but it'll become apparent why we need this.</li>
+    <li><code>arr[1] = 1</code> is akin to "Base Case 2." from earlier.</li>
+    <li><code>arr[2] = 2</code> represents that there are two distinct ways to reach the top of the staircase from 2 steps out => (1, 1) or (2) (or "Joe"-"Joe" and "jump").</li>
+    <li>And then we note: for a staircase of height 3 we can either get straight to the top with a "giant leap" <code>arr[3-3]</code> which gives us +1, <code>arr[0]</code>, or we can get a 1 or 2 steps closer and use the solutions from those steps to reach the top, giving us the number of solutions at i = 3 - 1 and i = 3 - 2 in arr in addition to our i = 3 - 3 solutions.</li>
+    <li>For a staircase of height 4 we want the number of solutions from steps 4 - 3, 4 - 2 and 4 - 1.</li>
+    <li>And so on and so forth.</li>
+</ul>
+
+<p>And this time we don&rsquo;t compute an array element more than once, where the array elements have replaced our recursive function calls. Hey presto.</p>
+
+<p>If you&rsquo;re a bit confused, it may help to explore a similar, and slightly simpler problem, the Fibonacci Numbers. The Fibonacci Numbers are like our steps problem but you can&rsquo;t take the &ldquo;giant leap&rdquo; of 3 steps.</p>
+
+<p>And that wraps up the demonstration of recursive, iterative and dynamic approaches.</p>
+
+<p>Please leave any comments below. Thanks for reading.</p>
+
+  </article>
+
+  <br/>
+
+  
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "peregrinedunn" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  
+  
+</section>
+
+      </div>
+      
+        <footer class="footer">
+  <section class="container">
+    
+      <div class="sns-shares sp-sns-shares">
+        
+        
+        
+        
+      </div>
+    
+    
+     © 2019    ·  Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/naro143/hugo-coder-portfolio">CoderPortfolio</a>. 
+
+  </section>
+</footer>
+<div class="fixed-bar">
+  <section class="container">
+    
+    
+      <div class="sns-shares pc-sns-shares">
+        
+        
+        
+        
+      </div>
+    
+  </section>
+</div>
+
+      
+    </main>
+
+    
+
+  <script src="https://www.peregrinedunn.com/js/app.js"></script>
+  
+  </body>
+</html>
