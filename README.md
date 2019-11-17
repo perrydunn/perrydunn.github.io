@@ -1,3 +1,0 @@
-# www.peregrinedunn.com
-
-To be a blog...
