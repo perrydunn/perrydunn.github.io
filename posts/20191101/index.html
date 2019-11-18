@@ -128,7 +128,7 @@ If you haven&rsquo;t reached the base case then you just recurse on the three po
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># Base Case 2.</span>
     <span class="k">return</span> <span class="n">steps</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">steps</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">steps</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span></code></pre></div>
-<p>Okay, so yeah, it&rsquo;s a easy to understand solution. So why might we not, in general, like recursive solutions? Some languages (their implementations) are well optimised for recursion and some are not. With Python, iteration is preferred &ndash; you may even have experience yourself of running into stack overflow issues with recursive python. Okay, I&rsquo;m being a bit cheeky here: above we have a recursive function but it&rsquo;s not tail recursive, and really I&rsquo;m referring to tail call optimisation, so my point is slightly contrived in this example. But still, Python prefers iterative solutions&hellip;</p>
+<p>Okay, so yeah, it&rsquo;s an easy to understand solution. So why might we not, in general, like recursive solutions? Some languages (their implementations) are well optimised for recursion and some are not. With Python, iteration is preferred &ndash; you may even have experience yourself of running into stack overflow issues with recursive python. Okay, I&rsquo;m being a bit cheeky here: above we have a recursive function but it&rsquo;s not tail recursive, and really I&rsquo;m referring to tail call optimisation, so my point is slightly contrived in this example. But still, Python prefers iterative solutions&hellip;</p>
 
 <h5 id="iterative">Iterative</h5>
 
@@ -194,12 +194,12 @@ If you haven&rsquo;t reached the base case then you just recurse on the three po
 <p>Seriously? Well, yeah, let&rsquo;s reason:</p>
 
 <ul>
-    <li><code>arr</code> is going to be populated as follows: an value v at index i will correspond to the number, v, of distinct ways to reach the top of a staircase of height i. So we know its length, so we can initialise it if we wanted (here I do).</li>
+    <li><code>arr</code> is going to be populated as follows: a value v at index i will correspond to the number, v, of distinct ways to reach the top of a staircase of height i. So we know its length, so we can initialise it if we wanted (here I do).</li>
     <li>A staircase of height 0 is kinda silly sounding but it'll become apparent why we need this.</li>
-    <li><code>arr[1] = 1</code> is akin to "Base Case 2." from earlier.</li>
-    <li><code>arr[2] = 2</code> represents that there are two distinct ways to reach the top of the staircase from 2 steps out => (1, 1) or (2) (or "Joe"-"Joe" and "jump").</li>
-    <li>And then we note: for a staircase of height 3 we can either get straight to the top with a "giant leap" <code>arr[3-3]</code> which gives us +1, <code>arr[0]</code>, or we can get a 1 or 2 steps closer and use the solutions from those steps to reach the top, giving us the number of solutions at i = 3 - 1 and i = 3 - 2 in arr in addition to our i = 3 - 3 solutions.</li>
-    <li>For a staircase of height 4 we want the number of solutions from steps 4 - 3, 4 - 2 and 4 - 1.</li>
+    <li><code>arr[1] = 1</code> is akin to "Base Case 2." from earlier: if you're on the top step then you can only take a Joe step to reach the top.</li>
+    <li><code>arr[2] = 2</code> represents that there are two distinct ways to reach the top of the staircase from 2 steps out => (1, 1) or (2) ("Joe"-"Joe" or "jump").</li>
+    <li>And then we note: for a staircase of height 3 we can either get straight to the top with a "giant leap" <code>arr[3-3]</code> which gives us +1, <code>arr[0]</code>, or we can move 1 or 2 steps closer and use the solutions from those steps to reach the top, giving us the number of solutions at i = 3 - 1 and i = 3 - 2 in arr in addition to our i = 3 - 3 solutions.</li>
+    <li>For a staircase of height 4 we want the number of solutions available from steps 4 - 3, 4 - 2 and 4 - 1.</li>
     <li>And so on and so forth.</li>
 </ul>
 
