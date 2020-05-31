@@ -6,10 +6,19 @@
     <description>Recent content on Perry Dunn</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 17 Nov 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 09 Jan 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://www.peregrinedunn.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Achievable Aims</title>
+      <link>https://www.peregrinedunn.com/posts/20200112/</link>
+      <pubDate>Thu, 09 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.peregrinedunn.com/posts/20200112/</guid>
+      <description>Is 2020 off to a flier?</description>
+    </item>
     
     <item>
       <title>Recursive, Iterative, Dynamic</title>
