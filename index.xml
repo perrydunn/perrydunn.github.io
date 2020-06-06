@@ -30,13 +30,12 @@
     </item>
     
     <item>
-      <title>About</title>
+      <title>CV</title>
       <link>https://www.peregrinedunn.com/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://www.peregrinedunn.com/about/</guid>
-      <description>Hi there, I&amp;rsquo;m Peregrine, or just &amp;ldquo;Perry&amp;rdquo; to keep things that little bit simpler.
-Experience Currently searching for new opportunities in software development. Shifti (on hold) Feb 2019 &amp;ndash; Aug 2019  Co-founder  Ivo and I were developing a shift management product superior to the incumbents due to its increased flexibility. Technologies used include NodeJS, Typescript, MongoDB, GraphQL, Google PubSub, ReactJS and Zeplin.   Stuart Nov 2017 &amp;ndash; Aug 2019  Data Scientist Oct 2018 &amp;ndash; Aug 2019   Projects included spatio-temporal demand forecasting and predictive pick-up times.</description>
+      <description>Experience An avid learner. Unnamed Mar 2020 &amp;ndash; Present  Software Engineer  Full-stack development of a sports app in my spare time (side-project). Full-stack Typescript (NodeJS backend; Angular frontend) with GraphQL API. Learning about web security (XSS, CSRF).   EY Jan 2020 &amp;ndash; Present  Software Engineer  Full-stack development of a Tax SAAS product. Spring (Java) backend and Angular frontend. Also productionised a ML-enabled tax compliance service as a Flask (python) app.</description>
     </item>
     
   </channel>
