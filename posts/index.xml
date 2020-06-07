@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Perry Dunn</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 09 Jan 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 07 Jun 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://www.peregrinedunn.com/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Recursive, Tail-Recursive, Tail-Call Optimization</title>
+      <link>https://www.peregrinedunn.com/posts/20200607/</link>
+      <pubDate>Sun, 07 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.peregrinedunn.com/posts/20200607/</guid>
+      <description>Functions in Python and Scala</description>
+    </item>
     
     <item>
       <title>Achievable Aims</title>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Perry Dunn">
+    <meta name="description" content="https://www.peregrinedunn.com">
+    <meta name="keywords" content="blog,developer,personal">
+    
+    <meta property="og:site_name" content="Perry Dunn">
+    <meta property="og:title" content="
+  Recursive, Tail-Recursive, Tail-Call Optimization - Perry Dunn
+">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.peregrinedunn.com/posts/20200607/">
+    <meta property="og:image" content="https://www.peregrinedunn.com">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="https://www.peregrinedunn.com/posts/20200607/">
+    <meta name="twitter:image" content="https://www.peregrinedunn.com">
+
+    <base href="https://www.peregrinedunn.com/posts/20200607/">
+    <title>
+  Recursive, Tail-Recursive, Tail-Call Optimization - Perry Dunn
+</title>
+
+    <link rel="canonical" href="https://www.peregrinedunn.com/posts/20200607/">
+    
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    
+    <link  rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700">
+    <link rel="stylesheet" href="https://www.peregrinedunn.com/css/normalize.min.css">
+    <link rel="stylesheet" href="https://www.peregrinedunn.com/css/style.min.css">
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.peregrinedunn.com/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.peregrinedunn.com/images/favicon-16x16.png" sizes="16x16">
+
+    
+      <link rel="alternate" href="https://www.peregrinedunn.com/index.xml" type="application/rss+xml" title="Perry Dunn">
+      <link href="https://www.peregrinedunn.com/index.xml" rel="feed" type="application/rss+xml" title="Perry Dunn" />
+    
+
+    <meta name="generator" content="Hugo 0.56.3" />
+  </head>
+
+  <body class="">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">Perry Dunn</a>
+    <input type="checkbox" id="menu-control"/>
+    <label class="menu-mobile  float-right " for="menu-control">
+      <span class="btn-mobile  float-right ">&#9776;</span>
+      <ul class="navigation-list">
+        
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="https://www.peregrinedunn.com/posts">Blog</a>
+            </li>
+          
+            <li class="navigation-item  align-center ">
+              <a class="navigation-link" href="https://www.peregrinedunn.com/about">About</a>
+            </li>
+          
+        
+        
+      </ul>
+    </label>
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+  <article>
+    <header>
+      <h1 class="title">Recursive, Tail-Recursive, Tail-Call Optimization</h1>
+      <p class="summary">Functions in Python and Scala</p>
+      <h2 class="date">June 7, 2020</h2>
+
+      
+    </header>
+
+    
+
+<p>This is a sequel and complement to an earlier post <strong>Recursive, Iterative, Dynamic</strong>, demonstrating why my discussion towards the end of the <strong>Recursive</strong> section was contrived. If you haven&rsquo;t read that post please read it before this, because I&rsquo;m being lazy and not reproducing any explanation here.</p>
+
+<p>We&rsquo;ll be using the same motivating example, although we already have a far better solution than a recursive solution, the <strong>Dynamic</strong> programming solution.</p>
+
+<h5 id="recursive">Recursive</h5>
+
+<p>Here&rsquo;s the recursive Python solution we had:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">steps</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>  <span class="c1"># Base Case 1.</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># Base Case 2.</span>
+    <span class="k">return</span> <span class="n">steps</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">steps</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">steps</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span></code></pre></div>
+<p>Let&rsquo;s force a stack overflow. If we call <code>steps(10000)</code> we&rsquo;ll receive a <code>RecursionError</code>. What&rsquo;s happened? Each call to <code>steps</code> has added an entry to the stack, but these entries aren&rsquo;t popped off the stack until a base case within has been reached: <code>steps(10000)</code> has entered within it <code>steps(9999)</code> within which <code>steps(9998)</code> within which <code>steps(9997)</code>, and so and so forth, and the stack has been filled up! &ldquo;No more!&rdquo; it cries, as the program attempts to send yet another plate-load its way.</p>
+
+<p>How can we keep our recursive solution whilst not overflowing the stack?</p>
+
+<h5 id="tail-recursive">Tail Recursive</h5>
+
+<p>If a function return just another call to itself we could conceivably optimise the runtime to re-use the same stack entry: we would not be adding entries to the stack; we would not overflow the stack.</p>
+
+<p>So how can we turn our solution above into this &ldquo;tail-recursive&rdquo; format? By use of an accumulator and an inner function:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">steps</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">step_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">recSteps</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="n">acc</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">progress</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">acc</span>
+        <span class="n">nth</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">nth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">recSteps</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="n">acc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nth</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">recSteps</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+        <span class="n">progress</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">nth</span> <span class="o">-</span> <span class="n">step_size</span> <span class="k">for</span> <span class="n">step_size</span> <span class="ow">in</span> <span class="n">step_sizes</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">recSteps</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">recSteps</span><span class="p">([</span><span class="n">n</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span></code></pre></div>
+<p>(This is similar to our <strong>Iterative</strong> solution.)</p>
+
+<p>In Scala we could write the following.</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="k">def</span> <span class="n">stepsSolutions</span><span class="o">(</span><span class="n">steps</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">stepSizes</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span><span class="mi">1</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">recSteps</span><span class="o">(</span><span class="n">progress</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">],</span> <span class="n">acc</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">progress</span> <span class="k">match</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nc">Nil</span> <span class="k">=&gt;</span> <span class="n">acc</span>
+    <span class="k">case</span> <span class="mi">0</span> <span class="k">:</span><span class="kt">:</span> <span class="kt">xs</span> <span class="o">=&gt;</span> <span class="n">recSteps</span><span class="o">(</span><span class="n">xs</span><span class="o">,</span> <span class="n">acc</span> <span class="o">+</span> <span class="mi">1</span><span class="o">)</span>
+    <span class="k">case</span> <span class="n">x</span> <span class="k">:</span><span class="kt">:</span> <span class="kt">xs</span> <span class="kt">if</span> <span class="kt">x</span> <span class="kt">&lt;</span> <span class="err">0</span> <span class="o">=&gt;</span> <span class="n">recSteps</span><span class="o">(</span><span class="n">xs</span><span class="o">,</span> <span class="n">acc</span><span class="o">)</span>
+    <span class="k">case</span> <span class="n">x</span> <span class="k">:</span><span class="kt">:</span> <span class="kt">xs</span> <span class="o">=&gt;</span> <span class="n">recSteps</span><span class="o">((</span><span class="n">stepSizes</span> <span class="n">foldRight</span> <span class="n">xs</span><span class="o">)(</span><span class="n">x</span> <span class="o">-</span> <span class="k">_</span> <span class="k">:</span><span class="kt">:</span> <span class="k">_</span><span class="o">),</span> <span class="n">acc</span><span class="o">)</span>
+  <span class="o">}</span>
+  <span class="n">recSteps</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="n">steps</span><span class="o">),</span> <span class="mi">0</span><span class="o">)</span>
+<span class="o">}</span></code></pre></div>
+<p>So what&rsquo;s the difference betweent the above?</p>
+
+<h5 id="tail-call-optimization">Tail-Call Optimization</h5>
+
+<p>Scala&rsquo;s compiler performs the conceivable optimization that we want. It is called &ldquo;tail-call optimization&rdquo;. Python, on the other hand, does not have this. Not many language implementations do. It&rsquo;s a wonderful thing to have available.</p>
+
+<p>But.</p>
+
+<p>The <strong>Dynamic</strong> programming solution is, in this particular situation, the most suitable. What&rsquo;s the runtime of these recursive solutions? It&rsquo;s nasty. Like <strong>O(3^n)</strong> kinda nasty. Best avoided.</p>
+
+  </article>
+
+  <br/>
+
+  
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "peregrinedunn" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  
+  
+</section>
+
+      </div>
+      
+        <footer class="footer">
+  <section class="container">
+    
+      <div class="sns-shares sp-sns-shares">
+        
+        
+        
+        
+      </div>
+    
+    
+     © 2020    ·  Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/naro143/hugo-coder-portfolio">CoderPortfolio</a>. 
+
+  </section>
+</footer>
+<div class="fixed-bar">
+  <section class="container">
+    
+    
+      <div class="sns-shares pc-sns-shares">
+        
+        
+        
+        
+      </div>
+    
+  </section>
+</div>
+
+      
+    </main>
+
+    
+
+  <script src="https://www.peregrinedunn.com/js/app.js"></script>
+  
+  </body>
+</html>
