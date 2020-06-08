@@ -109,7 +109,7 @@
 
 <h5 id="tail-recursive">Tail Recursive</h5>
 
-<p>If a function return just another call to itself we could conceivably optimise the runtime to re-use the same stack entry: we would not be adding entries to the stack; we would not overflow the stack.</p>
+<p>If a function returns simply a call to itself we could conceivably optimise the runtime to re-use the same stack entry: we would not be adding entries to the stack; we would not overflow the stack.</p>
 
 <p>So how can we turn our solution above into this &ldquo;tail-recursive&rdquo; format? By use of an accumulator and an inner function:</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">steps</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
@@ -128,21 +128,21 @@
 <p>(This is similar to our <strong>Iterative</strong> solution.)</p>
 
 <p>In Scala we could write the following.</p>
-<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="k">def</span> <span class="n">stepsSolutions</span><span class="o">(</span><span class="n">steps</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="o">{</span>
-  <span class="k">val</span> <span class="n">stepSizes</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span><span class="mi">1</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="k">def</span> <span class="n">steps</span><span class="o">(</span><span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">stepSizes</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
   <span class="k">def</span> <span class="n">recSteps</span><span class="o">(</span><span class="n">progress</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">],</span> <span class="n">acc</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">progress</span> <span class="k">match</span> <span class="o">{</span>
     <span class="k">case</span> <span class="nc">Nil</span> <span class="k">=&gt;</span> <span class="n">acc</span>
     <span class="k">case</span> <span class="mi">0</span> <span class="k">:</span><span class="kt">:</span> <span class="kt">xs</span> <span class="o">=&gt;</span> <span class="n">recSteps</span><span class="o">(</span><span class="n">xs</span><span class="o">,</span> <span class="n">acc</span> <span class="o">+</span> <span class="mi">1</span><span class="o">)</span>
     <span class="k">case</span> <span class="n">x</span> <span class="k">:</span><span class="kt">:</span> <span class="kt">xs</span> <span class="kt">if</span> <span class="kt">x</span> <span class="kt">&lt;</span> <span class="err">0</span> <span class="o">=&gt;</span> <span class="n">recSteps</span><span class="o">(</span><span class="n">xs</span><span class="o">,</span> <span class="n">acc</span><span class="o">)</span>
     <span class="k">case</span> <span class="n">x</span> <span class="k">:</span><span class="kt">:</span> <span class="kt">xs</span> <span class="o">=&gt;</span> <span class="n">recSteps</span><span class="o">((</span><span class="n">stepSizes</span> <span class="n">foldRight</span> <span class="n">xs</span><span class="o">)(</span><span class="n">x</span> <span class="o">-</span> <span class="k">_</span> <span class="k">:</span><span class="kt">:</span> <span class="k">_</span><span class="o">),</span> <span class="n">acc</span><span class="o">)</span>
   <span class="o">}</span>
-  <span class="n">recSteps</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="n">steps</span><span class="o">),</span> <span class="mi">0</span><span class="o">)</span>
+  <span class="n">recSteps</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="n">n</span><span class="o">),</span> <span class="mi">0</span><span class="o">)</span>
 <span class="o">}</span></code></pre></div>
-<p>So what&rsquo;s the difference betweent the above?</p>
+<p>So what&rsquo;s the difference between the above?</p>
 
 <h5 id="tail-call-optimization">Tail-Call Optimization</h5>
 
-<p>Scala&rsquo;s compiler performs the conceivable optimization that we want. It is called &ldquo;tail-call optimization&rdquo;. Python, on the other hand, does not have this. Not many language implementations do. It&rsquo;s a wonderful thing to have available.</p>
+<p>Scala&rsquo;s compiler performs the conceivable optimization that we want. It is called &ldquo;tail-call optimization&rdquo;. Python, on the other hand, does not have this: try calling <code>steps(10000)</code> with this new solution and you&rsquo;ll receive a <code>RecursionError</code> again. Not many language implementations do. It&rsquo;s a wonderful thing to have available.</p>
 
 <p>But.</p>
 
